@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>一周点菜</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="cover" id="cover">
+    <div class="lang-switcher" id="coverLangSwitcher">
+      <button type="button" class="lang-btn active" data-lang="zh">中文</button>
+      <button type="button" class="lang-btn" data-lang="en">English</button>
+    </div>
+    <div class="cover-bg" aria-hidden="true"></div>
+    <div class="cover-content" id="coverEntry">
+      <h1 class="cover-title">Weekly Menu</h1>
+      <p class="cover-order" data-i18n="coverOrder">→ Order</p>
+    </div>
+  </div>
+
+  <div class="family-gate hidden" id="familyGate">
+    <div class="lang-switcher lang-switcher-gate" id="gateLangSwitcher">
+      <button type="button" class="lang-btn active" data-lang="zh">中文</button>
+      <button type="button" class="lang-btn" data-lang="en">English</button>
+    </div>
+    <div class="family-gate-card">
+      <h2 class="family-gate-title" data-i18n="familyAccount">家庭账号</h2>
+      <p class="family-gate-desc" data-i18n="familyDesc">创建账号后，家庭成员可用同一账号登录一起编辑菜单</p>
+      <div class="family-tabs">
+        <button type="button" class="family-tab active" data-tab="create" data-i18n="createFamily">创建家庭</button>
+        <button type="button" class="family-tab" data-tab="login" data-i18n="login">登录</button>
+      </div>
+      <form class="family-form" id="familyCreateForm">
+        <label class="family-label" data-i18n="familyName">家庭名称</label>
+        <input type="text" class="family-input" id="familyName" data-i18n-placeholder="namePlaceholder" required maxlength="20" />
+        <label class="family-label" data-i18n="password">密码</label>
+        <input type="password" class="family-input" id="familyPassword" data-i18n-placeholder="passwordPlaceholder" required />
+        <label class="family-label" data-i18n="people">用餐人数</label>
+        <input type="number" class="family-input" id="familyPeople" min="1" max="20" value="2" />
+        <button type="submit" class="family-submit" data-i18n="createAndEnter">创建并进入</button>
+      </form>
+      <form class="family-form hidden" id="familyLoginForm">
+        <label class="family-label" data-i18n="familyName">家庭名称</label>
+        <input type="text" class="family-input" id="loginName" data-i18n-placeholder="namePlaceholderLogin" required />
+        <label class="family-label" data-i18n="password">密码</label>
+        <input type="password" class="family-input" id="loginPassword" data-i18n-placeholder="passwordPlaceholderLogin" required />
+        <button type="submit" class="family-submit" data-i18n="loginBtn">登录</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="app hidden" id="app">
+    <header class="hero">
+      <div class="lang-switcher" id="appLangSwitcher">
+        <button type="button" class="lang-btn active" data-lang="zh">中文</button>
+        <button type="button" class="lang-btn" data-lang="en">English</button>
+      </div>
+      <div class="hero-text">
+        <h1 class="logo" data-i18n="appTitle">Weekly Menu</h1>
+      </div>
+    </header>
+    <main class="content">
+      <section id="select" class="panel active" data-page="1">
+        <div class="calendar-wrap">
+          <div class="calendar-header">
+            <button type="button" class="calendar-nav calendar-prev" id="calendarPrev" aria-label="上一周" data-i18n-aria="prevWeek">&lt;</button>
+            <span class="calendar-month-label" id="calendarMonthLabel"></span>
+            <button type="button" class="calendar-nav calendar-next" id="calendarNext" aria-label="下一周" data-i18n-aria="nextWeek">&gt;</button>
+          </div>
+          <div class="calendar-weekdays">
+            <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+          </div>
+          <div class="calendar-days" id="calendarDays"></div>
+        </div>
+        <div class="week-grid" id="weekGrid"></div>
+      </section>
+      <section id="menu" class="panel" data-page="2">
+        <div class="menu-view" id="menuView"></div>
+        <div class="archive-actions">
+          <input type="text" class="archive-name-input" id="savedMenuNameInput" data-i18n-placeholder="menuNamePlaceholder" maxlength="30" />
+          <button type="button" class="archive-btn" id="menuArchiveBtn" data-i18n="save">保存</button>
+          <button type="button" class="discard-btn" id="menuDiscardBtn" data-i18n="done">完成</button>
+        </div>
+      </section>
+      <section id="shopping" class="panel" data-page="3">
+        <div class="shopping-view" id="shoppingView"></div>
+        <div class="archive-actions">
+          <button type="button" class="discard-btn" id="shoppingDiscardBtn" data-i18n="done">完成</button>
+        </div>
+      </section>
+      <section id="accountPanel" class="panel" data-page="4">
+        <div class="account-page-wrap">
+          <h2 class="account-page-title" data-i18n="accountSettings">账号设置</h2>
+          <div class="account-section">
+            <p class="account-label" data-i18n="currentFamily">当前家庭</p>
+            <p class="account-family-name-wrap">
+              <span class="account-family-name" id="accountFamilyName">—</span>
+              <span class="account-edit-hint" id="accountNameEditHint" data-i18n="clickToEdit">（点击修改）</span>
+            </p>
+            <div class="account-rename-inline hidden" id="accountRenameInline">
+              <input type="text" class="family-input" id="accountNewName" data-i18n-placeholder="newNamePlaceholder" maxlength="20" />
+              <input type="password" class="family-input" id="accountNamePassword" data-i18n-placeholder="confirmPwPlaceholder" />
+              <button type="button" class="account-btn" id="accountRenameBtn" data-i18n="saveName">保存名字</button>
+              <button type="button" class="account-btn account-btn-text" id="accountRenameCancel" data-i18n="cancel">取消</button>
+            </div>
+            <p class="account-hint" data-i18n="familyHint">家庭成员使用相同名称与密码登录即可一起编辑</p>
+          </div>
+          <div class="account-section">
+            <p class="account-label" data-i18n="viewSavedMenus">查看保存菜单</p>
+            <p class="account-hint" data-i18n="deleteSavedHint">删除不需要的已保存菜单</p>
+            <div class="saved-menus-list" id="savedMenusList"></div>
+          </div>
+          <div class="account-section">
+            <p class="account-label" data-i18n="passwordLabel">密码</p>
+            <p class="account-password-wrap">
+              <span class="account-password-mask">••••••</span>
+              <button type="button" class="account-btn account-btn-link" id="accountChangePwBtn" data-i18n="changePw">修改</button>
+            </p>
+          </div>
+          <div class="account-section">
+            <button type="button" class="family-submit family-logout" id="accountLogout" data-i18n="logout">退出登录</button>
+          </div>
+        </div>
+      </section>
+      <div class="account-modal account-pw-modal" id="accountPwModal" role="dialog" aria-hidden="true">
+        <div class="account-modal-backdrop" id="accountPwModalBackdrop"></div>
+        <div class="account-modal-content account-pw-modal-content">
+          <h3 class="account-modal-title" data-i18n="changePwTitle">修改密码</h3>
+          <input type="password" class="family-input" id="accountCurrentPw" data-i18n-placeholder="currentPw" />
+          <input type="password" class="family-input" id="accountNewPw" data-i18n-placeholder="newPw" />
+          <input type="password" class="family-input" id="accountNewPw2" data-i18n-placeholder="confirmPw" />
+          <div class="account-modal-actions">
+            <button type="button" class="account-btn" id="accountPwModalSubmit" data-i18n="confirm">确定</button>
+            <button type="button" class="account-btn account-btn-text" id="accountPwModalCancel" data-i18n="cancel">取消</button>
+          </div>
+        </div>
+      </div>
+    </main>
+    <nav class="bottom-nav" id="bottomNav">
+      <button type="button" class="bottom-nav-item active" data-page="1" data-i18n="navSelect">选菜</button>
+      <button type="button" class="bottom-nav-item" data-page="2" data-i18n="navMenu">菜单</button>
+      <button type="button" class="bottom-nav-item" data-page="3" data-i18n="navShopping">采购清单</button>
+      <button type="button" class="bottom-nav-item" data-page="4" data-i18n="navAccount">账号</button>
+    </nav>
+  </div>
+
+  <div class="modal" id="dishModal">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <button class="modal-close" aria-label="关闭">&times;</button>
+      <h3 class="modal-title" id="modalTitle" data-i18n="selectDish">选择菜品</h3>
+      <div class="dish-category-tabs" id="dishCategoryTabs"></div>
+      <div class="dish-grid" id="dishGrid"></div>
+    </div>
+  </div>
+
+  <div class="modal" id="addDishModal">
+    <div class="modal-backdrop" id="addDishBackdrop"></div>
+    <div class="modal-content add-dish-content">
+      <button class="modal-close" id="addDishClose" aria-label="关闭">&times;</button>
+      <h3 class="modal-title" data-i18n="addDish">添加新菜品</h3>
+      <form class="add-dish-form" id="addDishForm">
+        <label class="add-dish-label" data-i18n="dishName">菜品名称</label>
+        <input type="text" class="add-dish-input" id="addDishName" data-i18n-placeholder="namePlaceholderDish" required maxlength="20" />
+        <label class="add-dish-label" data-i18n="category">分类</label>
+        <select class="add-dish-select" id="addDishCategory" required>
+          <option value="pork" data-i18n="cat_pork">猪鸡</option>
+          <option value="beef" data-i18n="cat_beef">牛羊</option>
+          <option value="seafood" data-i18n="cat_seafood">海鲜</option>
+          <option value="veg" data-i18n="cat_veg">蔬菜</option>
+          <option value="staple" data-i18n="cat_staple">主食</option>
+          <option value="soup" data-i18n="cat_soup">汤</option>
+          <option value="out" data-i18n="cat_out">外食</option>
+        </select>
+        <label class="add-dish-label" data-i18n="uploadImage">上传图片</label>
+        <div class="add-dish-file-wrap">
+          <input type="file" class="add-dish-file" id="addDishImage" accept="image/*" />
+          <span class="add-dish-file-hint" id="addDishFileHint" data-i18n="clickSelectImage">点击选择本地图片</span>
+        </div>
+        <div class="add-dish-ingredients-block" id="addDishIngredientsBlock">
+          <label class="add-dish-label" data-i18n="ingredientsFor2">食材（以2人份填写）</label>
+          <div class="add-dish-ingredients" id="addDishIngredients"></div>
+          <button type="button" class="add-ingredient-btn" id="addIngredientBtn" data-i18n="addIngredient">＋ 添加食材</button>
+          <label class="add-dish-label" data-i18n="seasoningsLabel">配料（只写名称）</label>
+          <div class="add-dish-seasonings" id="addDishSeasonings"></div>
+          <button type="button" class="add-ingredient-btn" id="addSeasoningBtn" data-i18n="addSeasoning">＋ 添加配料</button>
+        </div>
+        <button type="submit" class="page-nav-btn add-dish-submit" data-i18n="saveBtn">保存</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="editDishModal">
+    <div class="modal-backdrop" id="editDishBackdrop"></div>
+    <div class="modal-content add-dish-content">
+      <button class="modal-close" id="editDishClose" aria-label="关闭">&times;</button>
+      <h3 class="modal-title" data-i18n="editDish">编辑菜品</h3>
+      <form class="add-dish-form" id="editDishForm">
+        <label class="add-dish-label" data-i18n="dishName">菜品名称</label>
+        <input type="text" class="add-dish-input" id="editDishName" data-i18n-placeholder="namePlaceholderShort" maxlength="30" />
+        <label class="add-dish-label" data-i18n="imageLabel">图片</label>
+        <div class="add-dish-edit-image-wrap">
+          <img id="editDishImagePreview" class="edit-dish-preview" src="" alt="" />
+          <div class="add-dish-file-wrap">
+            <input type="file" class="add-dish-file" id="editDishImageFile" accept="image/*" />
+            <span class="add-dish-file-hint" id="editDishImageHint" data-i18n="changeImageOptional">更换图片（可选）</span>
+          </div>
+        </div>
+        <div class="add-dish-ingredients-block" id="editDishIngredientsBlock">
+          <label class="add-dish-label" data-i18n="ingredientsFor2">食材（以2人份填写）</label>
+          <div class="add-dish-ingredients" id="editDishIngredients"></div>
+          <button type="button" class="add-ingredient-btn" id="editDishIngredientBtn" data-i18n="addIngredient">＋ 添加食材</button>
+          <label class="add-dish-label" data-i18n="seasoningsLabel">配料（只写名称）</label>
+          <div class="add-dish-seasonings" id="editDishSeasonings"></div>
+          <button type="button" class="add-ingredient-btn" id="editDishSeasoningBtn" data-i18n="addSeasoning">＋ 添加配料</button>
+        </div>
+        <div class="edit-dish-actions">
+          <button type="submit" class="page-nav-btn add-dish-submit" data-i18n="saveBtn">保存</button>
+          <button type="button" class="page-nav-btn edit-dish-delete" id="editDishDeleteBtn" data-i18n="delete">删除</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="addFillingModal">
+    <div class="modal-backdrop" id="addFillingBackdrop"></div>
+    <div class="modal-content add-dish-content">
+      <button class="modal-close" id="addFillingClose" aria-label="关闭">&times;</button>
+      <h3 class="modal-title" id="addFillingModalTitle" data-i18n="addFillingDumpling">添加饺子口味</h3>
+      <form class="add-dish-form" id="addFillingForm">
+        <label class="add-dish-label" id="addFillingNameLabel" data-i18n="fillingName">口味名称</label>
+        <input type="text" class="add-dish-input" id="addFillingName" data-i18n-placeholder="fillingPlaceholderDumpling" maxlength="20" />
+        <label class="add-dish-label" data-i18n="ingredientsFor2">食材（以2人份填写）</label>
+        <div class="add-dish-ingredients" id="addFillingIngredients"></div>
+        <button type="button" class="add-ingredient-btn" id="addFillingIngredientBtn" data-i18n="addIngredient">＋ 添加食材</button>
+        <label class="add-dish-label" data-i18n="seasoningsLabel">配料（只写名称）</label>
+        <div class="add-dish-seasonings" id="addFillingSeasonings"></div>
+        <button type="button" class="add-ingredient-btn" id="addFillingSeasoningBtn" data-i18n="addSeasoning">＋ 添加配料</button>
+        <button type="submit" class="page-nav-btn add-dish-submit" data-i18n="saveBtn">保存</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 脚本顺序：data → supabase 配置与同步 → app -->
+  <script src="data.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-sync.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

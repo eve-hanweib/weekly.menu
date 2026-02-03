@@ -1,0 +1,6 @@
+<!-- 把下面这段插入到 index.html 的 </body> 前，保证顺序：data.js → supabase 三行 → app.js，其他 script 不要删 -->
+<script src="data.js"></script>
+<script src="supabase-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-sync.js"></script>
+<script src="app.js"></script>
