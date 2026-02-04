@@ -73,29 +73,6 @@ body::before {
   pointer-events: none;
 }
 
-/* ========== 登录后主应用：固定背景，只有模块滑动 ========== */
-.app .page-bg {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  background-image: url('image2.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-color: var(--earth-100);
-  pointer-events: none;
-}
-
-.app .page-bg::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(250, 248, 245, 0.3);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  pointer-events: none;
-}
-
 /* ========== 封面页 ========== */
 .cover {
   position: fixed;
@@ -620,11 +597,6 @@ body::before {
 }
 
 /* ========== Hero 头部（毛玻璃） ========== */
-.app .hero {
-  position: relative;
-  z-index: 1;
-}
-
 .hero {
   padding: 28px 20px 20px;
   display: flex;
@@ -798,11 +770,6 @@ body::before {
 }
 
 /* ========== 内容区 ========== */
-.app .content {
-  position: relative;
-  z-index: 1;
-}
-
 .content {
   position: relative;
 }
@@ -1071,7 +1038,6 @@ body::before {
   position: fixed;
   bottom: 12px;
   left: 50%;
-  z-index: 10;
   transform: translateX(-50%);
   width: calc(100% - 24px);
   max-width: 680px;
