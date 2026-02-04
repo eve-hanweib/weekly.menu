@@ -340,8 +340,13 @@
               }
               currentFamilyId = id;
               currentFamilyName = (row.family_name || name).trim() || name;
-              if (row.data) applyCloudData(row.data);
-              loadFamilyState();
+              try { localStorage.setItem(CURRENT_FAMILY_KEY, id); } catch (e) {}
+              if (row.data) {
+                applyCloudData(row.data);
+                saveFamilyState();
+              } else {
+                loadFamilyState();
+              }
               var pe = getPeopleInput();
               if (pe && row.data && row.data.people != null) pe.value = Math.min(20, Math.max(1, row.data.people));
               showApp();
@@ -355,6 +360,7 @@
             return;
           }
           currentFamilyId = id;
+          try { localStorage.setItem(CURRENT_FAMILY_KEY, id); } catch (e) {}
           var data = JSON.parse(raw);
           currentFamilyName = data.familyName || name;
           loadFamilyState();
