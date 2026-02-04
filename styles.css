@@ -609,10 +609,14 @@ body::before {
 .app {
   max-width: 680px;
   margin: 0 auto;
-  padding: 0 20px 72px 48px;
+  padding: 0 20px 72px;
+  padding-left: max(20px, env(safe-area-inset-left, 20px));
+  padding-right: max(20px, env(safe-area-inset-right, 20px));
   min-height: 100vh;
   position: relative;
   z-index: 1;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .app.hidden {
@@ -826,6 +830,9 @@ body::before {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   padding-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 #select.panel::-webkit-scrollbar {
@@ -849,6 +856,8 @@ body::before {
 #select .calendar-wrap,
 #select .week-grid {
   min-width: 320px;
+  width: 100%;
+  max-width: 100%;
 }
 
 .people-input {
@@ -1069,7 +1078,7 @@ body::before {
 /* ========== 底部固定：选菜 / 菜单 / 采购清单 切换 ========== */
 .bottom-nav {
   position: fixed;
-  bottom: 12px;
+  bottom: max(12px, env(safe-area-inset-bottom, 12px));
   left: 50%;
   z-index: 10;
   transform: translateX(-50%);
@@ -1279,9 +1288,13 @@ body::before {
   align-items: center;
   justify-content: center;
   padding: 24px;
+  padding-left: max(24px, env(safe-area-inset-left, 24px));
+  padding-right: max(24px, env(safe-area-inset-right, 24px));
+  padding-bottom: max(24px, env(safe-area-inset-bottom, 24px));
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.25s ease, visibility 0.25s;
+  box-sizing: border-box;
 }
 
 .modal.open {
@@ -1301,6 +1314,8 @@ body::before {
   width: 100%;
   max-width: 440px;
   max-height: 85vh;
+  margin-left: auto;
+  margin-right: auto;
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
@@ -1312,6 +1327,7 @@ body::before {
   flex-direction: column;
   border: var(--module-border);
   animation: modalIn 0.3s ease;
+  box-sizing: border-box;
 }
 
 #dishModal .modal-content {
@@ -1540,8 +1556,10 @@ body::before {
 
 /* ========== 添加新菜品表单 ========== */
 .add-dish-content {
-  max-width: 360px;
+  max-width: min(360px, calc(100vw - 48px));
   overflow-y: auto;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .add-dish-form {
@@ -1549,6 +1567,44 @@ body::before {
   flex-direction: column;
   gap: 14px;
   padding-right: 8px;
+}
+
+/* 食材 / 配料分区：各自独立一块，避免和按钮挤在同一行 */
+.add-dish-ingredients-block {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.add-dish-ingredients-block .add-dish-label {
+  display: block;
+  width: 100%;
+  margin-bottom: 4px;
+}
+
+.add-dish-ingredients-block .add-dish-ingredients,
+.add-dish-ingredients-block .add-dish-seasonings {
+  margin-top: 0;
+}
+
+.add-dish-ingredients-block .add-ingredient-btn {
+  display: block;
+  width: 100%;
+  max-width: 160px;
+  margin-top: 4px;
+}
+
+/* 配料区块：与食材区块视觉分离，仅标题上方加分隔 */
+.add-dish-ingredients-block .add-dish-seasonings {
+  margin-top: 8px;
+}
+
+/* 配料标题单独一行，与上方「＋ 添加食材」按钮明显分开 */
+.add-dish-ingredients-block label.add-dish-label[data-i18n="seasoningsLabel"] {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cream-border);
+  display: block;
 }
 
 .add-dish-label {
