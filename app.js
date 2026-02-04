@@ -858,6 +858,7 @@
           compressImageDataUrl(reader.result, function (compressed) {
             customDishes.push({ id: 'custom-' + Date.now(), name: name, category: cat, image: compressed, ingredients: ingredients });
             saveCustomDishes();
+            if (currentFamilyId) saveFamilyState();
             closeAddDishModal();
             renderDishGrid(currentCategoryId);
           });
@@ -866,6 +867,7 @@
       } else {
         customDishes.push({ id: 'custom-' + Date.now(), name: name, category: cat, image: '', ingredients: ingredients });
         saveCustomDishes();
+        if (currentFamilyId) saveFamilyState();
         closeAddDishModal();
         renderDishGrid(currentCategoryId);
       }
@@ -1063,6 +1065,7 @@
         ingredients: []
       });
       saveCustomDishes();
+      if (currentFamilyId) saveFamilyState();
       addFillingModal.classList.remove('open');
       renderDishGrid(currentCategoryId);
       if (fillingPickerType) {
