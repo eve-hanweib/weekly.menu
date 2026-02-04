@@ -3,7 +3,7 @@
 -- 家庭数据表：id = 前端计算的 hash(家庭名|密码)，不存密码
 CREATE TABLE IF NOT EXISTS family_data (
   id TEXT PRIMARY KEY,
-  family_name TEXT NOT NULL DEFAULT '',
+  family_name TEXT NOT NULL UNIQUE DEFAULT '',
   data JSONB NOT NULL DEFAULT '{}',
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

@@ -36,6 +36,9 @@
       cat_pork: '猪鸡', cat_beef: '牛羊', cat_seafood: '海鲜', cat_veg: '蔬菜', cat_staple: '主食', cat_soup: '汤', cat_out: '外食',
       delete: '删除', unnamed: '未命名', addNewDish: '添加新菜品', addNewFilling: '添加新馅料', back: '← 返回', remove: '删除',
       selectedCount: '已选', alertWrongCred: '账号或密码错误', alertEnterName: '请输入新家庭名称', alertWrongPw: '当前密码错误',
+      alertAccountTaken: '该家庭名称与密码组合已被使用，请换一个名称或密码',
+      alertNameAlreadyTaken: '该家庭名称已被使用，请换一个名称',
+      alertNotRegistered: '该账号未注册，请先创建家庭',
       alertNameUnchanged: '名称未改变', alertSaveFail: '保存失败', alertNameUpdated: '账号名字已修改',
       confirmDiscard: '确定完成并清空当前所有选菜与采购勾选？', alertMenuSaved: '菜单已保存',
       alertEnterDishName: '请输入菜品名称', alertEnterFillingName: '请输入口味或馅料名称', alertEnterNewPw: '请输入新密码',
@@ -74,6 +77,9 @@
       cat_pork: 'Pork/Chicken', cat_beef: 'Beef/Lamb', cat_seafood: 'Seafood', cat_veg: 'Veg', cat_staple: 'Staple', cat_soup: 'Soup', cat_out: 'Out',
       delete: 'Delete', unnamed: 'Untitled', addNewDish: 'Add dish', addNewFilling: 'Add filling', back: '← Back', remove: 'Remove',
       selectedCount: 'Selected', alertWrongCred: 'Wrong name or password', alertEnterName: 'Enter new family name', alertWrongPw: 'Wrong password',
+      alertAccountTaken: 'This family name and password are already in use. Please choose a different name or password.',
+      alertNameAlreadyTaken: 'This family name is already taken. Please choose a different name.',
+      alertNotRegistered: 'This account is not registered. Please create a family first.',
       alertNameUnchanged: 'Name unchanged', alertSaveFail: 'Save failed', alertNameUpdated: 'Name updated',
       confirmDiscard: 'Clear all selections and checkmarks?', alertMenuSaved: 'Menu saved',
       alertEnterDishName: 'Enter dish name', alertEnterFillingName: 'Enter filling name', alertEnterNewPw: 'Enter new password',
@@ -255,26 +261,64 @@
         var people = Math.min(20, Math.max(1, parseInt(document.getElementById('familyPeople').value, 10) || 2));
         if (!name) return;
         var id = familyHash(name + '|' + password);
-        currentFamilyId = id;
-        currentFamilyName = name;
-        var data = { familyName: name, people: people, selections: {}, customDishes: [], shoppingHave: {}, archivedMenus: [], shoppingExtraItems: [], shoppingExtraHave: {}, dishOverrides: {} };
-        try {
-          localStorage.setItem(getFamilyStorageKey(id), JSON.stringify(data));
-          localStorage.setItem(CURRENT_FAMILY_KEY, id);
-        } catch (err) { return; }
-        if (window.SupabaseSync && window.SupabaseSync.isConfigured()) {
-          window.SupabaseSync.ensureFamilyRow(id, name, function (err, ok) {
-            window.SupabaseSync.loadFromCloudAsync(id, function (e2, row) {
-              if (!e2 && row && row.data) applyCloudData(row.data);
-              loadFamilyState();
-              showApp();
-              initUI();
+
+        function proceedWithCreate() {
+          currentFamilyId = id;
+          currentFamilyName = name;
+          var data = { familyName: name, people: people, selections: {}, customDishes: [], shoppingHave: {}, archivedMenus: [], shoppingExtraItems: [], shoppingExtraHave: {}, dishOverrides: {} };
+          try {
+            localStorage.setItem(getFamilyStorageKey(id), JSON.stringify(data));
+            localStorage.setItem(CURRENT_FAMILY_KEY, id);
+          } catch (err) { return; }
+          if (window.SupabaseSync && window.SupabaseSync.isConfigured()) {
+            window.SupabaseSync.ensureFamilyRow(id, name, function (err, ok) {
+              window.SupabaseSync.loadFromCloudAsync(id, function (e2, row) {
+                if (!e2 && row && row.data) applyCloudData(row.data);
+                loadFamilyState();
+                showApp();
+                initUI();
+              });
             });
+          } else {
+            loadFamilyState();
+            showApp();
+            initUI();
+          }
+        }
+
+        function doCreate() {
+          if (window.SupabaseSync && window.SupabaseSync.isConfigured()) {
+            window.SupabaseSync.checkFamilyNameExists(name, function (err, exists) {
+              if (err) { console.error('Error checking family name:', err); return; }
+              if (exists) {
+                alert(t('alertNameAlreadyTaken'));
+                return;
+              }
+              proceedWithCreate();
+            });
+          } else {
+            if (localStorage.getItem(getFamilyStorageKey(id))) {
+              alert(t('alertAccountTaken'));
+              return;
+            }
+            proceedWithCreate();
+          }
+        }
+
+        if (window.SupabaseSync && window.SupabaseSync.isConfigured()) {
+          window.SupabaseSync.loadFromCloudAsync(id, function (err, row) {
+            if (!err && row) {
+              alert(t('alertAccountTaken'));
+              return;
+            }
+            doCreate();
           });
         } else {
-          loadFamilyState();
-          showApp();
-          initUI();
+          if (localStorage.getItem(getFamilyStorageKey(id))) {
+            alert(t('alertAccountTaken'));
+            return;
+          }
+          doCreate();
         }
       });
     }
@@ -287,36 +331,35 @@
         if (!name) return;
         var id = familyHash(name + '|' + password);
         try {
+          if (window.SupabaseSync && window.SupabaseSync.isConfigured()) {
+            // 必须云端存在该账号才允许登录，未注册则提示先创建
+            window.SupabaseSync.loadFromCloudAsync(id, function (err, row) {
+              if (err || !row) {
+                alert(t('alertNotRegistered'));
+                return;
+              }
+              currentFamilyId = id;
+              currentFamilyName = (row.family_name || name).trim() || name;
+              if (row.data) applyCloudData(row.data);
+              loadFamilyState();
+              var pe = getPeopleInput();
+              if (pe && row.data && row.data.people != null) pe.value = Math.min(20, Math.max(1, row.data.people));
+              showApp();
+              initUI();
+            });
+            return;
+          }
           var raw = localStorage.getItem(getFamilyStorageKey(id));
-          if (!raw && (!window.SupabaseSync || !window.SupabaseSync.isConfigured())) {
+          if (!raw) {
             alert(t('alertWrongCred'));
             return;
           }
           currentFamilyId = id;
+          var data = JSON.parse(raw);
+          currentFamilyName = data.familyName || name;
           loadFamilyState();
-          if (currentFamilyName === '' && raw) {
-            var data = JSON.parse(raw);
-            currentFamilyName = data.familyName || name;
-          }
-          if (!currentFamilyName) currentFamilyName = name;
-          if (window.SupabaseSync && window.SupabaseSync.isConfigured()) {
-            window.SupabaseSync.loadFromCloudAsync(id, function (err, row) {
-              if (!err && row && row.data) {
-                applyCloudData(row.data);
-                var pe = getPeopleInput();
-                if (pe && row.data.people != null) pe.value = Math.min(20, Math.max(1, row.data.people));
-              }
-              showApp();
-              initUI();
-            });
-          } else {
-            if (!raw) { alert(t('alertWrongCred')); return; }
-            var data = JSON.parse(raw);
-            currentFamilyName = data.familyName || name;
-            loadFamilyState();
-            showApp();
-            initUI();
-          }
+          showApp();
+          initUI();
         } catch (err) { alert(t('alertWrongCred')); }
       });
     }

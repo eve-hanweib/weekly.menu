@@ -63,6 +63,25 @@
       });
   }
 
+  /** 检查家庭名称是否已存在，callback(err, exists) */
+  function checkFamilyNameExists(familyName, callback) {
+    if (!familyName) {
+      if (callback) callback(null, false);
+      return;
+    }
+    if (!supabase && !init()) {
+      if (callback) callback(null, false);
+      return;
+    }
+    supabase.from(TABLE).select('id').eq('family_name', familyName).limit(1)
+      .then(function (res) {
+        if (callback) callback(res.error ? res.error.message : null, !res.error && res.data && res.data.length > 0);
+      })
+      .catch(function (err) {
+        if (callback) callback(err && err.message ? err.message : 'network error', false);
+      });
+  }
+
   /** 确保该家庭在云端有一条记录（新建家庭时调用），无则插入空数据 */
   function ensureFamilyRow(familyId, familyName, callback) {
     if (!familyId) {
@@ -104,6 +123,7 @@
     isConfigured: function () { return !!(window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.url && window.SUPABASE_CONFIG.anonKey); },
     loadFromCloudAsync: loadFromCloudAsync,
     saveToCloud: saveToCloud,
+    checkFamilyNameExists: checkFamilyNameExists,
     ensureFamilyRow: ensureFamilyRow
   };
 })();
